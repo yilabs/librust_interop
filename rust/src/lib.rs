@@ -24,9 +24,9 @@ lazy_static! {
 static mut HASHMAPS: once_cell::sync::Lazy<HashMapsT> = once_cell::sync::Lazy::new(HashMapsT::new);
 static mut   QUEUES: once_cell::sync::Lazy<QueuesT>   = once_cell::sync::Lazy::new(QueuesT::new);
 
-// NOTE: `dashmap_new` is NOT thread-safe, since it will modify the underlying container Vec
-// so in the most called function dashmap_get, dashmap_insert, the HASHMAPS.get() no need to be sync-ed
-// othewise, it will be very slow
+// NOTE: all the exported functions use C naming convention.
+
+
 // return a handle
 macro_rules! create_function { ($func_name:ident, $cell:ident, $ctype:ty) => {
 
