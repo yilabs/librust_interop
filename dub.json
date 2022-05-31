@@ -1,0 +1,19 @@
+{
+	"name": "rust_interop",
+	"targetType": "staticLibrary",
+	"description": "Rust interop for D.",
+	"authors": ["yilabs"],
+	"homepage": "https://github.com/yilabs/librust_interop",
+	"license": "BSL-1.0 license",
+	"sourcePaths": ["d", "rust"],
+	"importPaths": ["d", "rust"],
+	"dependencies": {
+	},
+	"preBuildCommands": [
+		"cd rust; make clean; make build"
+	],
+	"lflags-linux": [
+		"-L./rust/target/debug/",
+		"-lrust_interop"
+	]
+}
