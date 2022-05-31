@@ -1,0 +1,6 @@
+[parse.expand]
+crates = ["rust_interop"]
+
+[macro_expansion]
+bitflags = true
+
