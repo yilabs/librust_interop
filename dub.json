@@ -1,5 +1,5 @@
 {
-	"name": "rust_interop",
+	"name": "rust_interop_d",
 	"targetType": "staticLibrary",
 	"description": "Rust interop for D.",
 	"authors": ["yilabs"],
