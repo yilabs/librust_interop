@@ -1,4 +1,3 @@
-// https://stackoverflow.com/a/27826181
 use once_cell::sync::Lazy;
 use std::sync::RwLock;
 
@@ -14,6 +13,8 @@ type QueueT = SegQueue<u64>;
 type QueuesT = Vec<QueueT>;
 
 
+// How do I create a global, mutable singleton?
+// https://stackoverflow.com/a/27826181
 static HASHMAPS: Lazy<RwLock<HashMapsT>> = Lazy::new(|| RwLock::new(vec![]));
 static   QUEUES: Lazy<RwLock<QueuesT  >> = Lazy::new(|| RwLock::new(vec![]));
 

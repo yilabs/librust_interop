@@ -8,8 +8,11 @@ rust_interop.h:
 	dstep $@ -o $(RUST_INTEROP_D)
 
 build:
-	cargo build
+	cargo build --release
 	make -B rust_interop.h
+	mv --force ./target/release/librust_interop.a ../
+	cargo clean  # rust will generate .d files
+
 
 view_macro_expansion:
 	cargo rustc --profile=check -- -Zunpretty=expanded

@@ -13,7 +13,7 @@
 		"cd rust; make clean; make build"
 	],
 	"lflags-linux": [
-		"-L./rust/target/debug/",
+		"-L$PACKAGE_DIR",
 		"-lrust_interop"
 	]
 }
