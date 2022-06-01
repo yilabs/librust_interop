@@ -7,7 +7,10 @@ rust_interop.h:
 
 build:
 	cargo build
-	make rust_interop.h
+	make -B rust_interop.h
+
+view_macro_expansion:
+	cargo rustc --profile=check -- -Zunpretty=expanded
 
 clean:
 	$(RM) -f rust_interop.h $(RUST_INTEROP_D)
