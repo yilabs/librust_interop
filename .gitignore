@@ -11,3 +11,4 @@ Cargo.lock
 **/*.rs.bk
 
 librust_interop_d.a
+librust_interop.a
