@@ -17,6 +17,8 @@ uint64_t dashmap_get(CVoidPtr handle, uint64_t key);
 
 uint64_t dashmap_insert(CVoidPtr handle, uint64_t key, uint64_t val);
 
+uintptr_t dashmap_len(CVoidPtr handle);
+
 uint64_t segqueue_pop(CVoidPtr handle);
 
 void segqueue_push(CVoidPtr handle, uint64_t val);

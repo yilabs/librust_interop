@@ -52,6 +52,12 @@ pub unsafe extern "C" fn dashmap_insert(handle:CVoidPtr, key:u64, val:u64) -> u6
   obj.insert(key, val).unwrap()
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn dashmap_len(handle:CVoidPtr) -> usize {
+  cast_c_void_ptr_back_to_rust!(obj, HashMapT, handle);
+  obj.len()
+}
+
 
 #[no_mangle]
 pub unsafe extern "C" fn segqueue_pop(handle:CVoidPtr) -> u64 {
