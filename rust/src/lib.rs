@@ -10,6 +10,18 @@ type QueueT = SegQueue<u64>;
 
 /* NOTE: all the exported functions use C naming convention.
 */
+// https://stackoverflow.com/a/24191977
+macro_rules! cast_rust_obj_to_c_void_ptr { ($obj:ident, $c_void_ptr:ident) => {
+  let $c_void_ptr: CVoidPtr = &mut $obj as *mut _ as CVoidPtr;
+}; }
+
+// NOTE: this c_void_ptr *is* originally a Rust object!
+macro_rules! cast_c_void_ptr_back_to_rust { ($obj:ident, $otype:ty, $c_void_ptr:ident) => {
+  // unsafe is needed because we dereference a raw pointer here
+  #[allow(unused_unsafe)]
+  let $obj: &mut $otype = unsafe { &mut *($c_void_ptr as *mut $otype) };
+}; }
+
 
 
 // return a CVoidPtr
@@ -18,22 +30,14 @@ macro_rules! create_function { ($func_name:ident, $ctype:ty) => {
 #[no_mangle]
 pub unsafe extern "C" fn $func_name() -> CVoidPtr {
   let mut obj = <$ctype>::new();
-  let obj_ptr: CVoidPtr = &mut obj as *mut _ as CVoidPtr;
-  return obj_ptr;
+  cast_rust_obj_to_c_void_ptr!(obj, c_void_ptr);
+  return c_void_ptr;
 }
 
 }; }
 
 create_function!( dashmap_new, HashMapT);
 create_function!(segqueue_new,   QueueT);
-
-// NOTE: this c_void_ptr *is* originally a Rust object!
-macro_rules! cast_c_void_ptr_back_to_rust { ($obj:ident, $otype:ty, $c_void_ptr:ident) => {
-  // https://stackoverflow.com/a/24191977
-  // unsafe is needed because we dereference a raw pointer here
-  #[allow(unused_unsafe)]
-  let $obj: &mut $otype = unsafe { &mut *($c_void_ptr as *mut $otype) };
-}; }
 
 #[no_mangle]
 pub unsafe extern "C" fn dashmap_get(handle:CVoidPtr, key:u64) -> u64 {
