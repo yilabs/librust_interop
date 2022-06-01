@@ -6,8 +6,9 @@ import core.stdc.stdint;
 import rust_interop_h;  // rust exported header -> d file
 
 // wrapper of https://docs.rs/crossbeam-queue/0.3.5/crossbeam_queue/struct.SegQueue.html
+// use the same name as in Rust
 class SegQueue {
-  HandleT handle;
+  CVoidPtr handle;
   this() {
     handle = segqueue_new();
   }
@@ -16,10 +17,10 @@ class SegQueue {
 unittest {
   {
   SegQueue queue = new SegQueue();
-  assert(queue.handle == 0);
+  assert(queue.handle !is null);
   }
   {
   SegQueue queue = new SegQueue();
-  assert(queue.handle == 1);
+  assert(queue.handle !is null);
   }
 }
