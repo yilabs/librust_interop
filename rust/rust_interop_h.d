@@ -1,22 +1,20 @@
-import core.stdc.config;
-
 extern (C):
 
-alias HandleT = c_ulong;
+alias CVoidPtr = void*;
 
 // __cplusplus
 
-HandleT dashmap_new ();
+CVoidPtr dashmap_new ();
 
-HandleT segqueue_new ();
+CVoidPtr segqueue_new ();
 
-ulong dashmap_get (HandleT handle, ulong key);
+ulong dashmap_get (CVoidPtr handle, ulong key);
 
-ulong dashmap_insert (HandleT handle, ulong key, ulong val);
+ulong dashmap_insert (CVoidPtr handle, ulong key, ulong val);
 
-ulong segqueue_pop (HandleT handle);
+ulong segqueue_pop (CVoidPtr handle);
 
-void segqueue_push (HandleT handle, ulong val);
+void segqueue_push (CVoidPtr handle, ulong val);
 
 // extern "C"
 // __cplusplus
