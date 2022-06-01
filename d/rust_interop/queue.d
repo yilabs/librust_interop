@@ -8,11 +8,22 @@ import rust_interop_h;  // rust exported header -> d file
 
 // wrapper of https://docs.rs/crossbeam-queue/0.3.5/crossbeam_queue/struct.SegQueue.html
 // use the same name as in Rust
-class SegQueue {
+// this class is shared: otherwise, please use a normal queue
+// Crate crossbeam_queue: This crate provides concurrent queues that can be shared among threads:
+// SegQueue, an unbounded MPMC queue that allocates small buffers, segments, on demand.
+shared class SegQueue {
   HandleT handle;
 
   this() {
     handle = segqueue_new();
+  }
+
+  bool empty() {
+    return 0 == this.length();
+  }
+
+  bool full() {
+    return false;  // SegQueue is *unbounded* multi-producer multi-consumer queue.
   }
 
   void push(ulong val) {
@@ -29,11 +40,11 @@ class SegQueue {
 }
 
 unittest {
-  SegQueue q1 = new SegQueue();
+  auto q1 = new shared SegQueue();
   assert(q1.handle == 0);
   assert(q1.length == 0);
 
-  SegQueue q2 = new SegQueue();
+  auto q2 = new shared SegQueue();
   assert(q2.handle == 1);
   assert(q2.length == 0);
   assert(q1.length == 0);
