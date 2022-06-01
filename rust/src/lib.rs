@@ -27,7 +27,8 @@ pub unsafe extern "C" fn $func_name() -> CVoidPtr {
 create_function!( dashmap_new, HashMapT);
 create_function!(segqueue_new,   QueueT);
 
-macro_rules! cast_back_to_rust { ($obj:ident, $c_void_ptr:ident, $otype:ty) => {
+// NOTE: this c_void_ptr *is* originally a Rust object!
+macro_rules! cast_c_void_ptr_back_to_rust { ($obj:ident, $otype:ty, $c_void_ptr:ident) => {
   // https://stackoverflow.com/a/24191977
   // unsafe is needed because we dereference a raw pointer here
   #[allow(unused_unsafe)]
@@ -36,27 +37,27 @@ macro_rules! cast_back_to_rust { ($obj:ident, $c_void_ptr:ident, $otype:ty) => {
 
 #[no_mangle]
 pub unsafe extern "C" fn dashmap_get(handle:CVoidPtr, key:u64) -> u64 {
-  cast_back_to_rust!(obj, handle, HashMapT);
+  cast_c_void_ptr_back_to_rust!(obj, HashMapT, handle);
   *(obj.get(&key).unwrap())
 }
 
 // return the old val
 #[no_mangle]
 pub unsafe extern "C" fn dashmap_insert(handle:CVoidPtr, key:u64, val:u64) -> u64 {
-  cast_back_to_rust!(obj, handle, HashMapT);
+  cast_c_void_ptr_back_to_rust!(obj, HashMapT, handle);
   obj.insert(key, val).unwrap()
 }
 
 
 #[no_mangle]
 pub unsafe extern "C" fn segqueue_pop(handle:CVoidPtr) -> u64 {
-  cast_back_to_rust!(obj, handle, QueueT);
+  cast_c_void_ptr_back_to_rust!(obj, QueueT, handle);
   obj.pop().unwrap()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn segqueue_push(handle:CVoidPtr, val:u64) {
-  cast_back_to_rust!(obj, handle, QueueT);
+  cast_c_void_ptr_back_to_rust!(obj, QueueT, handle);
   obj.push(val)
 }
 
