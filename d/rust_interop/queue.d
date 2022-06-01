@@ -1,30 +1,58 @@
 module rust_interop.queue;
 
 import core.stdc.stdint;
-// link to rslib.a
+import std.stdio;
+
 
 import rust_interop_h;  // rust exported header -> d file
 
 // wrapper of https://docs.rs/crossbeam-queue/0.3.5/crossbeam_queue/struct.SegQueue.html
 // use the same name as in Rust
 class SegQueue {
-  CVoidPtr handle;
+  HandleT handle;
+
   this() {
     handle = segqueue_new();
   }
 
+  void push(ulong val) {
+    segqueue_push(handle, val);
+  }
+
+  ulong pop() {
+    return segqueue_pop(handle);
+  }
+
   uintptr_t length() {
-    return dashmap_len(handle);
+    return segqueue_len(handle);
   }
 }
 
 unittest {
   SegQueue q1 = new SegQueue();
-  assert(q1.handle !is null);
+  assert(q1.handle == 0);
+  assert(q1.length == 0);
 
   SegQueue q2 = new SegQueue();
-  assert(q2.handle !is null);
-  assert(q2.length  == 0);
+  assert(q2.handle == 1);
+  assert(q2.length == 0);
+  assert(q1.length == 0);
 
-  assert(q1.length  == 0);
+  // try some push
+  auto n = 10;
+  foreach (i; 0 .. n) {
+    assert(q1.length == i);
+    q1.push(i);
+  }
+  assert(q1.length == 10);
+  // writeln(q1.length);
+
+  // now pop
+  foreach (i; 0 .. n) {
+    auto e = q1.pop();
+    // writeln(e);
+    assert(e == i);
+  }
+  assert(q1.length == 0);
+  assert(q2.length == 0);
 }

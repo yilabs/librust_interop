@@ -1,4 +1,6 @@
 
+all: build
+
 RUST_INTEROP_D = rust_interop_h.d
 
 rust_interop.h:

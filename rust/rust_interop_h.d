@@ -1,24 +1,27 @@
+import core.stdc.config;
 import core.stdc.stdint;
 
 extern (C):
 
-alias CVoidPtr = void*;
+alias HandleT = c_ulong;
 
 // __cplusplus
 
-CVoidPtr dashmap_new ();
+HandleT dashmap_new ();
 
-CVoidPtr segqueue_new ();
+HandleT segqueue_new ();
 
-ulong dashmap_get (CVoidPtr handle, ulong key);
+ulong dashmap_get (HandleT handle, ulong key);
 
-ulong dashmap_insert (CVoidPtr handle, ulong key, ulong val);
+ulong dashmap_insert (HandleT handle, ulong key, ulong val);
 
-uintptr_t dashmap_len (CVoidPtr handle);
+uintptr_t dashmap_len (HandleT handle);
 
-ulong segqueue_pop (CVoidPtr handle);
+ulong segqueue_pop (HandleT handle);
 
-void segqueue_push (CVoidPtr handle, ulong val);
+void segqueue_push (HandleT handle, ulong val);
+
+uintptr_t segqueue_len (HandleT handle);
 
 // extern "C"
 // __cplusplus
