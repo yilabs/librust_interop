@@ -1,68 +1,63 @@
+use std::ffi::{c_void};
 
 use dashmap::DashMap;
 use crossbeam_queue::SegQueue;
-use once_cell;  // ::sync::OnceCell;  // shall we use sync/unsync?
 
-// use lazy_static::lazy_static;
+type CVoidPtr = *mut c_void;  // this is `void *` in C
 
 type HashMapT = DashMap<u64, u64>;  // DashMap that stores u64 value from D side
-type HashMapsT = Vec<HashMapT>;
-type HandleT = usize;
 type QueueT = SegQueue<u64>;
-type QueuesT = Vec<QueueT>;
 
-// https://github.com/rust-lang-nursery/lazy-static.rs/blob/master/examples/mutex_map.rs
-/*
-lazy_static! {
-  static ref HASHMAPS: HashMapsT = {
-    let mut vec = Vec::<HashMapT>::new();
-    vec
-  };
-}
+/* NOTE: all the exported functions use C naming convention.
 */
 
-static mut HASHMAPS: once_cell::sync::Lazy<HashMapsT> = once_cell::sync::Lazy::new(HashMapsT::new);
-static mut   QUEUES: once_cell::sync::Lazy<QueuesT>   = once_cell::sync::Lazy::new(QueuesT::new);
 
-// NOTE: all the exported functions use C naming convention.
-
-
-// return a handle
-macro_rules! create_function { ($func_name:ident, $cell:ident, $ctype:ty) => {
+// return a CVoidPtr
+macro_rules! create_function { ($func_name:ident, $ctype:ty) => {
 
 #[no_mangle]
-pub unsafe extern "C" fn $func_name() -> HandleT {
-  let map = <$ctype>::new();
-  let handle:HandleT = $cell.len();
-  $cell.push(map);
-
-  return handle;
+pub unsafe extern "C" fn $func_name() -> CVoidPtr {
+  let mut obj = <$ctype>::new();
+  let obj_ptr: CVoidPtr = &mut obj as *mut _ as CVoidPtr;
+  return obj_ptr;
 }
 
 }; }
 
-create_function!( dashmap_new, HASHMAPS, HashMapT);
-create_function!(segqueue_new,   QUEUES,   QueueT);
+create_function!( dashmap_new, HashMapT);
+create_function!(segqueue_new,   QueueT);
+
+macro_rules! cast_back_to_rust { ($obj:ident, $c_void_ptr:ident, $otype:ty) => {
+  // https://stackoverflow.com/a/24191977
+  // unsafe is needed because we dereference a raw pointer here
+  #[allow(unused_unsafe)]
+  let $obj: &mut $otype = unsafe { &mut *($c_void_ptr as *mut $otype) };
+}; }
 
 #[no_mangle]
-pub unsafe extern "C" fn dashmap_get(handle:HandleT, key:u64) -> u64 {
-  *(HASHMAPS.get(handle).unwrap().get(&key).unwrap())
+pub unsafe extern "C" fn dashmap_get(handle:CVoidPtr, key:u64) -> u64 {
+  cast_back_to_rust!(obj, handle, HashMapT);
+  *(obj.get(&key).unwrap())
 }
 
 // return the old val
 #[no_mangle]
-pub unsafe extern "C" fn dashmap_insert(handle:HandleT, key:u64, val:u64) -> u64 {
-  HASHMAPS.get(handle).unwrap().insert(key, val).unwrap()
+pub unsafe extern "C" fn dashmap_insert(handle:CVoidPtr, key:u64, val:u64) -> u64 {
+  cast_back_to_rust!(obj, handle, HashMapT);
+  obj.insert(key, val).unwrap()
+}
+
+
+#[no_mangle]
+pub unsafe extern "C" fn segqueue_pop(handle:CVoidPtr) -> u64 {
+  cast_back_to_rust!(obj, handle, QueueT);
+  obj.pop().unwrap()
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn segqueue_pop(handle:HandleT) -> u64 {
-  QUEUES.get(handle).unwrap().pop().unwrap()
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn segqueue_push(handle:HandleT, val:u64) {
-  QUEUES.get(handle).unwrap().push(val)
+pub unsafe extern "C" fn segqueue_push(handle:CVoidPtr, val:u64) {
+  cast_back_to_rust!(obj, handle, QueueT);
+  obj.push(val)
 }
 
 #[cfg(test)]
