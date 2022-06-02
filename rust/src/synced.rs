@@ -93,10 +93,11 @@ pub unsafe extern "C" fn segqueue_pop(handle:HandleT) -> u64 {
   );
 }
 
+// return bool: ok or err
 #[no_mangle]
-pub unsafe extern "C" fn segqueue_push(handle:HandleT, val:u64) {
+pub unsafe extern "C" fn segqueue_push(handle:HandleT, val:u64) -> bool {
   get_handle_obj!(QUEUES, handle, obj,
-    { return obj.push(val); }
+    { obj.push(val); return true; }
   );
 }
 

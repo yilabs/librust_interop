@@ -19,7 +19,7 @@ uintptr_t dashmap_length (HandleT handle);
 
 ulong segqueue_pop (HandleT handle);
 
-void segqueue_push (HandleT handle, ulong val);
+bool segqueue_push (HandleT handle, ulong val);
 
 uintptr_t segqueue_length (HandleT handle);
 

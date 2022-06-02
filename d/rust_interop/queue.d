@@ -15,7 +15,7 @@ import rust_interop_h;  // rust exported header -> d file
 // SegQueue, an unbounded MPMC queue that allocates small buffers, segments, on demand.
 
 
-version (all) {  // manual wrap
+version (none) {  // manual wrap
 
 shared class SegQueue {
   HandleT handle;
@@ -32,8 +32,8 @@ shared class SegQueue {
     return false;  // SegQueue is *unbounded* multi-producer multi-consumer queue.
   }
 
-  void push(ulong val) {  // TODO: queue_bmm push void*, but here we use ulong!
-    segqueue_push(handle, val);
+  bool push(ulong val) {  // TODO: queue_bmm push void*, but here we use ulong!
+    return segqueue_push(handle, val);
   }
 
   ulong pop() {
@@ -89,5 +89,5 @@ unittest {
   assert(q2.length == 0);
 
   // test segqueue
-//auto sq = new shared(segqueue!int);
+  auto sq = new shared(segqueue!int);
 }

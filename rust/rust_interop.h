@@ -21,7 +21,7 @@ uintptr_t dashmap_length(HandleT handle);
 
 uint64_t segqueue_pop(HandleT handle);
 
-void segqueue_push(HandleT handle, uint64_t val);
+bool segqueue_push(HandleT handle, uint64_t val);
 
 uintptr_t segqueue_length(HandleT handle);
 
