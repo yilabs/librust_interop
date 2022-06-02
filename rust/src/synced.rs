@@ -3,13 +3,20 @@ use std::sync::RwLock;
 
 use dashmap::DashMap;
 use crossbeam_queue::SegQueue;
+/*
+use lockfree::queue::Queue;
+type QueueT = Queue<u64>;
+*/
 
 type HandleT = usize;
 
 type HashMapT = DashMap<u64, u64>;  // DashMap that stores u64 value from D side
 type HashMapsT = Vec<HashMapT>;
 
-type QueueT = SegQueue<u64>;
+type SegQueueT = SegQueue<u64>;
+
+type QueueT = SegQueueT;
+
 type QueuesT = Vec<QueueT>;
 
 
@@ -99,7 +106,6 @@ pub unsafe extern "C" fn segqueue_len(handle:HandleT) -> usize {
     { return obj.len(); }
   );
 }
-
 
 
 #[cfg(test)]
