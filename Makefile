@@ -1,5 +1,6 @@
 build:
 	make clean
+	dub upgrade
 	dub test
 	make clean
 	dub build
