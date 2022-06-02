@@ -53,7 +53,6 @@ enum segqueue_decl = liblfdsd.queue_bmm_decl
     .replace("queue_bmm_new(n)", "queue_bmm_new()")
     .replace("int ok;", "int ok=1;")
     .replace(", &ok", "")
-    .replace("void* value", "ulong value")
     .replace("queue_bmm", "segqueue");
 mixin(segqueue_decl);
 
