@@ -79,7 +79,7 @@ pub unsafe extern "C" fn dashmap_insert(handle:HandleT, key:u64, val:u64) -> u64
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn dashmap_len(handle:HandleT) -> usize {
+pub unsafe extern "C" fn dashmap_length(handle:HandleT) -> usize {
   get_handle_obj!(HASHMAPS, handle, obj,
     { return obj.len(); }
   );
@@ -100,10 +100,18 @@ pub unsafe extern "C" fn segqueue_push(handle:HandleT, val:u64) {
   );
 }
 
+// NOTE: _destroy and _length are D's convention
 #[no_mangle]
-pub unsafe extern "C" fn segqueue_len(handle:HandleT) -> usize {
+pub unsafe extern "C" fn segqueue_length(handle:HandleT) -> usize {
   get_handle_obj!(QUEUES, handle, obj,
     { return obj.len(); }
+  );
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn segqueue_destroy(handle:HandleT) {
+  get_handle_obj!(QUEUES, handle, obj,
+    { drop(obj); }  // TODO: also remove from QUEUES vec?
   );
 }
 
