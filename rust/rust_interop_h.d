@@ -15,13 +15,15 @@ ulong dashmap_get (HandleT handle, ulong key);
 
 ulong dashmap_insert (HandleT handle, ulong key, ulong val);
 
-uintptr_t dashmap_len (HandleT handle);
+uintptr_t dashmap_length (HandleT handle);
 
 ulong segqueue_pop (HandleT handle);
 
 void segqueue_push (HandleT handle, ulong val);
 
-uintptr_t segqueue_len (HandleT handle);
+uintptr_t segqueue_length (HandleT handle);
+
+void segqueue_destroy (HandleT handle);
 
 // extern "C"
 // __cplusplus

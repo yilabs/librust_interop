@@ -8,6 +8,7 @@
 	"sourcePaths": ["d", "rust"],
 	"importPaths": ["d", "rust"],
 	"dependencies": {
+		"liblfdsd": "~>0.3.0"
 	},
 	"preBuildCommands": [
 		"cd rust; make clean; make build"

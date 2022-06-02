@@ -17,13 +17,15 @@ uint64_t dashmap_get(HandleT handle, uint64_t key);
 
 uint64_t dashmap_insert(HandleT handle, uint64_t key, uint64_t val);
 
-uintptr_t dashmap_len(HandleT handle);
+uintptr_t dashmap_length(HandleT handle);
 
 uint64_t segqueue_pop(HandleT handle);
 
 void segqueue_push(HandleT handle, uint64_t val);
 
-uintptr_t segqueue_len(HandleT handle);
+uintptr_t segqueue_length(HandleT handle);
+
+void segqueue_destroy(HandleT handle);
 
 #ifdef __cplusplus
 } // extern "C"
