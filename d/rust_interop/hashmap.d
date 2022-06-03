@@ -20,14 +20,17 @@ bool canBeFFIValType(T)() {
 }
 
 version(unittest) {
-  struct Small { byte b; }
+  struct Small { int val; }
   struct Exact { uintptr_t up; }
   struct Big   { uintptr_t up; byte b; }
   alias SmallPtr = Small*;
   alias ExactPtr = Exact*;
   alias   BigPtr =   Big*;
+
 }
 unittest {
+  assert(Small.sizeof == 4);
+
   assert(!canBeFFIValType!(int[]));  // .ptr + .len
   assert( canBeFFIValType!(int));
   assert( canBeFFIValType!(uint));
@@ -90,13 +93,26 @@ class DashMap(KeyT, ValT) {
 mixin(DashMapDecl);
 
 unittest {
+  int n = 10;
+
 //auto hs = new DashMap!(int, Small);
   auto hS = new DashMap!(int, SmallPtr);
 //auto sS = new DashMap!(Small, SmallPtr);  // `isIntegral!(Small)` is false
+  // try struct* SmallPtr
+  assert(hS.length == 0);
+  foreach (i; 0 .. n) {
+    SmallPtr sp = new Small(i * i);
+    hS[i] = sp;  // insert
+  }
+  assert(hS.length == 10);
+  foreach (i; 0 .. n) {
+    SmallPtr sp = hS[i];  // get
+    assert(sp.val == (i * i));
+  }
+  assert(hS.length == 10);
 
   auto hm = new DashMap!(int, int);
   assert(hm.length == 0);
-  int n = 10;
   foreach (i; 0 .. n) {
     hm[i] = (i * i);
   }
