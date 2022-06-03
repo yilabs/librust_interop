@@ -5,9 +5,14 @@ RUST_INTEROP_D = rust_interop_h.d
 
 rust_interop.h:
 	cbindgen --lang C --cpp-compat --config cbindgen.toml --crate rust_interop --output $@
+	# dub run 
 	dstep $@ -o $(RUST_INTEROP_D)
 
 build:
+	rustup toolchain install nightly  # needed for cargo-expand
+	rustup default nightly
+	cargo install cbindgen  # --force
+	cargo install cargo-expand
 	cargo build --release
 	make -B rust_interop.h
 	mv --force ./target/release/librust_interop.a ../
