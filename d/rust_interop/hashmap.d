@@ -5,8 +5,6 @@ import std.array;
 import std.stdio;
 import std.traits;
 
-import liblfdsd;
-
 import rust_interop_h;  // rust exported header -> d file
 
 
