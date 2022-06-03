@@ -70,11 +70,15 @@ pub unsafe extern "C" fn dashmap_get(handle:HandleT, key:u64) -> u64 {
 }
 
 
-// return the old val
+// return the old val if there is any; NOTE: otherwise, will return 0 (TODO?)
 #[no_mangle]
 pub unsafe extern "C" fn dashmap_insert(handle:HandleT, key:u64, val:u64) -> u64 {
   get_handle_obj!(HASHMAPS, handle, obj,
-    { return obj.insert(key, val).unwrap(); }
+    { match obj.insert(key, val) {
+        Some(old) => return old,
+        None      => return 0,
+      }
+    }
   );
 }
 
