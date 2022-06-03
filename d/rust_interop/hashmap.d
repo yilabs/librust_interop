@@ -98,8 +98,10 @@ unittest {
 //auto sS = new DashMap!(Small, SmallPtr);  // `isIntegral!(Small)` is false
   // try struct* SmallPtr
   assert(hS.length == 0);
+  SmallPtr[] dSideRefHolder = new SmallPtr[n];
   foreach (i; 0 .. n) {
     SmallPtr sp = new Small(i * i);
+    dSideRefHolder[i] = sp;
     hS[i] = sp;  // insert
   }
   assert(hS.length == 10);
