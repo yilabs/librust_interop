@@ -1,6 +1,7 @@
 module rust_interop.hashmap;
 
 import core.stdc.stdint;
+import std.algorithm.iteration;
 import std.array;
 import std.stdio;
 import std.traits;
@@ -48,13 +49,13 @@ enum DashMapDecl = q{
 // using the D naming convention
 // https://github.com/dlang-community/containers/blob/master/src/containers/hashmap.d
 
-// only use integer type as KeyT, since key will be passed to Rust thru ffi,
-// there is no way (or difficult) to call any D side's KeyT.cmp function on the Rust side.
+// only use integer type as KT, since key will be passed to Rust thru ffi,
+// there is no way (or difficult) to call any D side's KT.cmp function on the Rust side.
 // it's the user's responsibility to make sure the KeyT, ValT can be passed to DashMap
-class DashMap(KeyT, ValT) {
-  static assert(isIntegral!(KeyT));
-  static assert(is(KeyT == ulong));  // TODO: right now, only ulong key is supported in Rust
-  static assert(canBeFFIValType!(ValT));
+class DashMap(KT, VT) {
+  static assert(isIntegral!(KT));
+  static assert(is(KT == KeyT));  // TODO: right now, only ulong key is supported in Rust
+  static assert(canBeFFIValType!(VT));
 
   private HandleT _handle;
 
@@ -67,49 +68,49 @@ class DashMap(KeyT, ValT) {
   }
 
   // as drop-in replacement of other D hashmap, let's use the D method name convention
-  ValT get(KeyT key) {
-    ulong val = dashmap_get(_handle, key);
-    return cast(ValT)(cast(void*)val);
+  VT get(KT key) {
+    ValT val = dashmap_get(_handle, key);
+    return cast(VT)(cast(void*)val);
   }
 
   /**
    * Supports `aa[key]` syntax.
    */
-  ValT opIndex(KeyT key) {
+  VT opIndex(KT key) {
     return this.get(key);
   }
 
   /**
    * Supports $(B aa[key] = value;) syntax.
    */
-  void opIndexAssign(ValT val, const KeyT key) {
-    dashmap_insert(_handle, key, cast(ulong)val);
+  void opIndexAssign(VT val, const KT key) {
+    dashmap_insert(_handle, key, cast(ValT)val);
   }
 
-  KeyT[] keys() {
+  KT[] keys() {
     synchronized(this) {  // the 2 call: dashmap_length, and dashmap_keys has to be in the same sync block
       auto len = this.length();
       // alloc C array to be passed to Rust
-      KeyT[] ks = new KeyT[len];
+      ValT[] ks = new ValT[len];
       dashmap_keys(_handle, ks.ptr, ks.length);
       return ks;
     }
   }
 
-  ValT[] values() {
+  VT[] values() {
     synchronized(this) {  // the 2 call: dashmap_length, and dashmap_values has to be in the same sync block
       auto len = this.length();
       // alloc C array to be passed to Rust
-      ulong[] vs = new ulong[len];
+      ValT[] vs = new ValT[len];
       dashmap_values(_handle, vs.ptr, vs.length);
 
       // convert back to the result type
-      static if(is(ValT == ulong)) {
-        ValT[] rs = vs;
+      static if(is(VT == ValT)) {
+        VT[] rs = vs;
       } else {
-        ValT[] rs = new ValT[len];
+        VT[] rs = new VT[len];
         foreach (i, e; vs) {
-          rs[i] = cast(ValT)(e);
+          rs[i] = cast(VT)(e);
         }
       }
 
@@ -126,7 +127,7 @@ unittest {
   int n = 10;
 
 //auto hs = new DashMap!(int, Small);
-  auto hS = new DashMap!(ulong, SmallPtr);
+  auto hS = new DashMap!(KeyT, SmallPtr);
 //auto sS = new DashMap!(Small, SmallPtr);  // `isIntegral!(Small)` is false
   // try struct* SmallPtr
   assert(hS.length == 0);
@@ -143,9 +144,9 @@ unittest {
   }
   assert(hS.length == 10);
   writeln(hS.keys());
-  writeln(hS.values());
+  writeln(map!(s => *s)(hS.values()));  // write the struct!
 
-  auto hm = new DashMap!(ulong, int);
+  auto hm = new DashMap!(KeyT, int);
   assert(hm.length == 0);
   foreach (i; 0 .. n) {
     hm[i] = (i * i);
