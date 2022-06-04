@@ -53,6 +53,7 @@ enum DashMapDecl = q{
 // it's the user's responsibility to make sure the KeyT, ValT can be passed to DashMap
 class DashMap(KeyT, ValT) {
   static assert(isIntegral!(KeyT));
+  static assert(is(KeyT == ulong));  // TODO: right now, only ulong key is supported in Rust
   static assert(canBeFFIValType!(ValT));
 
   private HandleT _handle;
@@ -84,6 +85,37 @@ class DashMap(KeyT, ValT) {
   void opIndexAssign(ValT val, const KeyT key) {
     dashmap_insert(_handle, key, cast(ulong)val);
   }
+
+  KeyT[] keys() {
+    synchronized(this) {  // the 2 call: dashmap_length, and dashmap_keys has to be in the same sync block
+      auto len = this.length();
+      // alloc C array to be passed to Rust
+      KeyT[] ks = new KeyT[len];
+      dashmap_keys(_handle, ks.ptr, ks.length);
+      return ks;
+    }
+  }
+
+  ValT[] values() {
+    synchronized(this) {  // the 2 call: dashmap_length, and dashmap_values has to be in the same sync block
+      auto len = this.length();
+      // alloc C array to be passed to Rust
+      ulong[] vs = new ulong[len];
+      dashmap_values(_handle, vs.ptr, vs.length);
+
+      // convert back to the result type
+      static if(is(ValT == ulong)) {
+        ValT[] rs = vs;
+      } else {
+        ValT[] rs = new ValT[len];
+        foreach (i, e; vs) {
+          rs[i] = cast(ValT)(e);
+        }
+      }
+
+      return rs;
+    }
+  }
 }
 
 };
@@ -94,7 +126,7 @@ unittest {
   int n = 10;
 
 //auto hs = new DashMap!(int, Small);
-  auto hS = new DashMap!(int, SmallPtr);
+  auto hS = new DashMap!(ulong, SmallPtr);
 //auto sS = new DashMap!(Small, SmallPtr);  // `isIntegral!(Small)` is false
   // try struct* SmallPtr
   assert(hS.length == 0);
@@ -110,8 +142,10 @@ unittest {
     assert(sp.val == (i * i));
   }
   assert(hS.length == 10);
+  writeln(hS.keys());
+  writeln(hS.values());
 
-  auto hm = new DashMap!(int, int);
+  auto hm = new DashMap!(ulong, int);
   assert(hm.length == 0);
   foreach (i; 0 .. n) {
     hm[i] = (i * i);
@@ -121,5 +155,7 @@ unittest {
     assert(hm[i] == (i * i));
   }
   assert(hm.length == 10);
+  writeln(hm.keys());
+  writeln(hm.values());
 }
 
