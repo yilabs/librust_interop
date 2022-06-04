@@ -85,7 +85,7 @@ shared class DashMap(KT, VT) {
    * Supports $(B aa[key] = value;) syntax.
    */
   void opIndexAssign(VT val, const KT key) {
-    dashmap_insert(_handle, key, cast(ValT)val);
+    dashmap_insert(_handle, key, cast(ValT)(cast(void*)val));
   }
 
   KT[] keys() {
@@ -111,7 +111,7 @@ shared class DashMap(KT, VT) {
       } else {
         VT[] rs = new VT[len];
         foreach (i, e; vs) {
-          rs[i] = cast(VT)(e);
+          rs[i] = cast(VT)(cast(void*)e);
         }
       }
 
