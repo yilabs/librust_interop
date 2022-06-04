@@ -29,8 +29,8 @@ Let Rust's be Rust's, and let D's be D's, i.e.
 
 The only thing interfacing between Rust and D is the simple uintptr_t (void*) as value, so to use this D library:
 
-    all primitive types (whose .sizeof upto pointer size on the target machine) | class (pointer)'s value are stored as value of uintptr_t
-    everything else, i.e. all (fat) objects' address are stored as value of uintptr_t
+all primitive types (whose .sizeof upto pointer size on the target machine) | class (pointer)'s value are stored as value of uintptr_t
+everything else, i.e. all (fat) objects' address are stored as value of uintptr_t
 
 The only extra requirement on the D side is to keep reference to those fat objects to avoid it being GC-ed before being pop-ed.
 
