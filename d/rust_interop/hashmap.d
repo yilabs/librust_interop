@@ -52,7 +52,8 @@ enum DashMapDecl = q{
 // only use integer type as KT, since key will be passed to Rust thru ffi,
 // there is no way (or difficult) to call any D side's KT.cmp function on the Rust side.
 // it's the user's responsibility to make sure the KeyT, ValT can be passed to DashMap
-class DashMap(KT, VT) {
+// this class is shared: otherwise, please use a normal hashmap
+shared class DashMap(KT, VT) {
   static assert(isIntegral!(KT));
   static assert(is(KT == KeyT));  // TODO: right now, only ulong key is supported in Rust
   static assert(canBeFFIValType!(VT));
@@ -127,7 +128,7 @@ unittest {
   int n = 10;
 
 //auto hs = new DashMap!(int, Small);
-  auto hS = new DashMap!(KeyT, SmallPtr);
+  auto hS = new shared DashMap!(KeyT, SmallPtr);
 //auto sS = new DashMap!(Small, SmallPtr);  // `isIntegral!(Small)` is false
   // try struct* SmallPtr
   assert(hS.length == 0);
@@ -146,7 +147,7 @@ unittest {
   writeln(hS.keys());
   writeln(map!(s => *s)(hS.values()));  // write the struct!
 
-  auto hm = new DashMap!(KeyT, int);
+  auto hm = new shared DashMap!(KeyT, int);
   assert(hm.length == 0);
   foreach (i; 0 .. n) {
     hm[i] = (i * i);
