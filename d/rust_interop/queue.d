@@ -47,7 +47,7 @@ shared class SegQueue {
 
 } else {
 
-// TODO: refine this!
+// TODO: refine this hack!
 enum segqueue_decl = liblfdsd.queue_bmm_decl
     .replace("c_queue_bmm*", "HandleT")
     .replace("queue_bmm_new(n)", "queue_bmm_new()")
@@ -56,15 +56,16 @@ enum segqueue_decl = liblfdsd.queue_bmm_decl
     .replace("queue_bmm", "segqueue");
 mixin(segqueue_decl);
 
-alias SegQueue = segqueue!int;
+alias SegQueue = segqueue;
+alias SegQueueInt = SegQueue!int;
 }
 
 unittest {
-  auto q1 = new shared SegQueue();
+  auto q1 = new shared SegQueueInt();
 //assert(q1.handle == 0);
   assert(q1.length == 0);
 
-  auto q2 = new shared SegQueue();
+  auto q2 = new shared SegQueueInt();
 //assert(q2.handle == 1);
   assert(q2.length == 0);
   assert(q1.length == 0);
@@ -87,6 +88,6 @@ unittest {
   assert(q1.length == 0);
   assert(q2.length == 0);
 
-  // test segqueue
-  auto sq = new shared(segqueue!int);
+  // test SegQueue
+  auto sq = new shared(SegQueue!int);
 }
