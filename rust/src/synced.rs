@@ -6,15 +6,18 @@ use dashmap::DashMap;
 use crossbeam_queue::SegQueue;
 /*
 use lockfree::queue::Queue;
-type QueueT = Queue<u64>;
+type QueueT = Queue<ValT>;
 */
 
 type HandleT = usize;  // the handle which "holds" the DashMap or SegQueue object
 
-type DashMapT = DashMap<u64, u64>;  // DashMap whose <key, value> are both u64 from D side
+type KeyT = u64;  // TODO: fixed for now
+type ValT = u64;  // of the container
+
+type DashMapT = DashMap<KeyT, ValT>;  // on the Rust side, DashMap whose <key, value> are both u64 from D side
 type DashMapsT = Vec<DashMapT>;
 
-type SegQueueT = SegQueue<u64>;
+type SegQueueT = SegQueue<ValT>;
 type SegQueuesT = Vec<SegQueueT>;
 
 
@@ -61,7 +64,7 @@ macro_rules! get_handle_obj { ($container:ident, $handle:ident, $obj:ident, $cod
 }; }
 
 #[no_mangle]
-pub unsafe extern "C" fn dashmap_get(handle:HandleT, key:u64) -> u64 {
+pub unsafe extern "C" fn dashmap_get(handle:HandleT, key:KeyT) -> ValT {
   get_handle_obj!(DASHMAPS, handle, obj,
     { return *(obj.get(&key).unwrap()); }
   );
@@ -70,7 +73,7 @@ pub unsafe extern "C" fn dashmap_get(handle:HandleT, key:u64) -> u64 {
 
 // return the old val if there is any; NOTE: otherwise, will return 0 (TODO?)
 #[no_mangle]
-pub unsafe extern "C" fn dashmap_insert(handle:HandleT, key:u64, val:u64) -> u64 {
+pub unsafe extern "C" fn dashmap_insert(handle:HandleT, key:KeyT, val:ValT) -> ValT {
   get_handle_obj!(DASHMAPS, handle, obj,
     { match obj.insert(key, val) {
         Some(old) => return old,
@@ -92,9 +95,9 @@ pub unsafe extern "C" fn dashmap_length(handle:HandleT) -> usize {
 macro_rules! create_function { ($func_name:ident, $func:ident) => {
 
 #[no_mangle]
-pub extern "C" fn $func_name(handle:HandleT, c_array: *mut u64, length: usize) {
+pub extern "C" fn $func_name(handle:HandleT, c_array: *mut ValT, length: usize) {
   // build a Rust array from array & length
-  let rust_array: &mut [u64] = unsafe { slice::from_raw_parts_mut(c_array, length as usize) };
+  let rust_array: &mut [ValT] = unsafe { slice::from_raw_parts_mut(c_array, length as usize) };
   get_handle_obj!(DASHMAPS, handle, obj, {
     let mut i = 0;
     for it in obj.iter() {
@@ -112,7 +115,7 @@ create_function!(dashmap_values, value);
 
 
 #[no_mangle]
-pub unsafe extern "C" fn segqueue_pop(handle:HandleT) -> u64 {
+pub unsafe extern "C" fn segqueue_pop(handle:HandleT) -> ValT {
   get_handle_obj!(SEGQUEUES, handle, obj,
     { return obj.pop().unwrap(); }
   );
@@ -120,7 +123,7 @@ pub unsafe extern "C" fn segqueue_pop(handle:HandleT) -> u64 {
 
 // return bool: ok or err
 #[no_mangle]
-pub unsafe extern "C" fn segqueue_push(handle:HandleT, val:u64) -> bool {
+pub unsafe extern "C" fn segqueue_push(handle:HandleT, val:ValT) -> bool {
   get_handle_obj!(SEGQUEUES, handle, obj,
     { obj.push(val); return true; }
   );

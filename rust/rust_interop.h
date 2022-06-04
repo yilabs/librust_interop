@@ -5,6 +5,10 @@
 
 typedef uintptr_t HandleT;
 
+typedef uint64_t ValT;
+
+typedef uint64_t KeyT;
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -13,19 +17,19 @@ HandleT dashmap_new(void);
 
 HandleT segqueue_new(void);
 
-uint64_t dashmap_get(HandleT handle, uint64_t key);
+ValT dashmap_get(HandleT handle, KeyT key);
 
-uint64_t dashmap_insert(HandleT handle, uint64_t key, uint64_t val);
+ValT dashmap_insert(HandleT handle, KeyT key, ValT val);
 
 uintptr_t dashmap_length(HandleT handle);
 
-void dashmap_keys(HandleT handle, uint64_t *c_array, uintptr_t length);
+void dashmap_keys(HandleT handle, ValT *c_array, uintptr_t length);
 
-void dashmap_values(HandleT handle, uint64_t *c_array, uintptr_t length);
+void dashmap_values(HandleT handle, ValT *c_array, uintptr_t length);
 
-uint64_t segqueue_pop(HandleT handle);
+ValT segqueue_pop(HandleT handle);
 
-bool segqueue_push(HandleT handle, uint64_t val);
+bool segqueue_push(HandleT handle, ValT val);
 
 uintptr_t segqueue_length(HandleT handle);
 

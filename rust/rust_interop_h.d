@@ -5,25 +5,29 @@ extern (C):
 
 alias HandleT = c_ulong;
 
+alias ValT = c_ulong;
+
+alias KeyT = c_ulong;
+
 // __cplusplus
 
 HandleT dashmap_new ();
 
 HandleT segqueue_new ();
 
-ulong dashmap_get (HandleT handle, ulong key);
+ValT dashmap_get (HandleT handle, KeyT key);
 
-ulong dashmap_insert (HandleT handle, ulong key, ulong val);
+ValT dashmap_insert (HandleT handle, KeyT key, ValT val);
 
 uintptr_t dashmap_length (HandleT handle);
 
-void dashmap_keys (HandleT handle, ulong* c_array, uintptr_t length);
+void dashmap_keys (HandleT handle, ValT* c_array, uintptr_t length);
 
-void dashmap_values (HandleT handle, ulong* c_array, uintptr_t length);
+void dashmap_values (HandleT handle, ValT* c_array, uintptr_t length);
 
-ulong segqueue_pop (HandleT handle);
+ValT segqueue_pop (HandleT handle);
 
-bool segqueue_push (HandleT handle, ulong val);
+bool segqueue_push (HandleT handle, ValT val);
 
 uintptr_t segqueue_length (HandleT handle);
 
