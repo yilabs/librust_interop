@@ -1,3 +1,4 @@
+use std::slice;
 use once_cell::sync::Lazy;
 use std::sync::RwLock;
 
@@ -8,9 +9,9 @@ use lockfree::queue::Queue;
 type QueueT = Queue<u64>;
 */
 
-type HandleT = usize;
+type HandleT = usize;  // the handle which "holds" the DashMap or SegQueue object
 
-type DashMapT = DashMap<u64, u64>;  // DashMap that stores u64 value from D side
+type DashMapT = DashMap<u64, u64>;  // DashMap whose <key, value> are both u64 from D side
 type DashMapsT = Vec<DashMapT>;
 
 type SegQueueT = SegQueue<u64>;
@@ -37,7 +38,7 @@ fn main() {
 // so in the most called function dashmap_get, dashmap_insert, the DASHMAPS.get() no need to be sync-ed
 // othewise, it will be very slow
 // return a handle
-macro_rules! create_function { ($func_name:ident, $cell:ident, $ctype:ty) => {
+macro_rules! create_function_new { ($func_name:ident, $cell:ident, $ctype:ty) => {
 
 #[no_mangle]
 pub unsafe extern "C" fn $func_name() -> HandleT {
@@ -50,8 +51,8 @@ pub unsafe extern "C" fn $func_name() -> HandleT {
 
 }; }
 
-create_function!( dashmap_new,  DASHMAPS,  DashMapT);
-create_function!(segqueue_new, SEGQUEUES, SegQueueT);
+create_function_new!( dashmap_new,  DASHMAPS,  DashMapT);
+create_function_new!(segqueue_new, SEGQUEUES, SegQueueT);
 
 macro_rules! get_handle_obj { ($container:ident, $handle:ident, $obj:ident, $code:block) => {
   let read = $container.read().unwrap();  // NOTE: we only use the read lock on the container Vec!
@@ -85,6 +86,29 @@ pub unsafe extern "C" fn dashmap_length(handle:HandleT) -> usize {
     { return obj.len(); }
   );
 }
+
+// NOTE: the caller need to make sure that the c_array length is big enough to hold all the keys/values in the map
+// for C arrays, need to pass array size
+macro_rules! create_function { ($func_name:ident, $func:ident) => {
+
+#[no_mangle]
+pub extern "C" fn $func_name(handle:HandleT, c_array: *mut u64, length: usize) {
+  // build a Rust array from array & length
+  let rust_array: &mut [u64] = unsafe { slice::from_raw_parts_mut(c_array, length as usize) };
+  get_handle_obj!(DASHMAPS, handle, obj, {
+    let mut i = 0;
+    for it in obj.iter() {
+      rust_array[i] = *it.$func();
+      i += 1;
+    }
+  });
+}
+
+}; }
+
+
+create_function!(dashmap_keys, key);
+create_function!(dashmap_values, value);
 
 
 #[no_mangle]
