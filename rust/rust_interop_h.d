@@ -17,6 +17,10 @@ ulong dashmap_insert (HandleT handle, ulong key, ulong val);
 
 uintptr_t dashmap_length (HandleT handle);
 
+void dashmap_keys (HandleT handle, ulong* c_array, uintptr_t length);
+
+void dashmap_values (HandleT handle, ulong* c_array, uintptr_t length);
+
 ulong segqueue_pop (HandleT handle);
 
 bool segqueue_push (HandleT handle, ulong val);

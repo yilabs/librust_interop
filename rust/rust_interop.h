@@ -19,6 +19,10 @@ uint64_t dashmap_insert(HandleT handle, uint64_t key, uint64_t val);
 
 uintptr_t dashmap_length(HandleT handle);
 
+void dashmap_keys(HandleT handle, uint64_t *c_array, uintptr_t length);
+
+void dashmap_values(HandleT handle, uint64_t *c_array, uintptr_t length);
+
 uint64_t segqueue_pop(HandleT handle);
 
 bool segqueue_push(HandleT handle, uint64_t val);
