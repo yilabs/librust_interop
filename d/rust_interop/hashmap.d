@@ -68,10 +68,30 @@ shared class DashMap(KT, VT) {
     return dashmap_length(_handle);
   }
 
+  bool containsKey(KT key) {
+    return dashmap_contains_key(_handle, key);
+  }
+
+  // NOTE: right now, since we will directly .unwrap() in Rust, the caller need to make sure that dashmap_contains_key()
   // as drop-in replacement of other D hashmap, let's use the D method name convention
   VT get(KT key) {
     ValT val = dashmap_get(_handle, key);
     return cast(VT)(cast(void*)val);
+  }
+
+  VT getOrAdd(KT key, VT delegate() gen) {
+    VT val;
+    if (!containsKey(key)) {  // this is a FFI call! but there is not way to optimize since on the original Rust function only return bool (instead of None(ValT))
+      synchronized(this) {
+        // NOTE: does this sync(this) defeat the purpose (using lock-free / high performant Rust hashmap) for a insert-heavy usage?
+        // since this sync(this) op will always happen on the D side
+        val = gen();
+        this.opIndexAssign(val, key);
+      }
+    } else {
+      val = this.get(key);
+    }
+    return val;
   }
 
   /**
