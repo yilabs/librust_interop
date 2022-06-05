@@ -3,7 +3,7 @@
 	"versions": {
 		"dpp": "0.4.10",
 		"libclang": "0.2.11",
-		"liblfdsd": "0.3.3",
+		"liblfdsd": "0.3.4",
 		"sumtype": "0.7.1",
 		"unit-threaded": "2.0.4"
 	}

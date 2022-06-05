@@ -3,6 +3,7 @@ module rust_interop.queue;
 import core.stdc.stdint;
 import std.array;
 import std.stdio;
+import std.traits;
 
 import liblfdsd;
 
