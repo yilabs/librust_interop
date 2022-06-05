@@ -64,6 +64,15 @@ macro_rules! get_handle_obj { ($container:ident, $handle:ident, $obj:ident, $cod
 }; }
 
 #[no_mangle]
+pub unsafe extern "C" fn dashmap_contains_key(handle:HandleT, key:KeyT) -> bool {
+  get_handle_obj!(DASHMAPS, handle, obj,
+    { return obj.contains_key(&key); }
+  );
+}
+
+
+// NOTE: right now, since we will directly .unwrap(), the caller need to make sure that dashmap_contains_key()
+#[no_mangle]
 pub unsafe extern "C" fn dashmap_get(handle:HandleT, key:KeyT) -> ValT {
   get_handle_obj!(DASHMAPS, handle, obj,
     { return *(obj.get(&key).unwrap()); }

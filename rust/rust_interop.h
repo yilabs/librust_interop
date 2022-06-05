@@ -5,9 +5,9 @@
 
 typedef uintptr_t HandleT;
 
-typedef uint64_t ValT;
-
 typedef uint64_t KeyT;
+
+typedef uint64_t ValT;
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +16,8 @@ extern "C" {
 HandleT dashmap_new(void);
 
 HandleT segqueue_new(void);
+
+bool dashmap_contains_key(HandleT handle, KeyT key);
 
 ValT dashmap_get(HandleT handle, KeyT key);
 

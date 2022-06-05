@@ -5,15 +5,17 @@ extern (C):
 
 alias HandleT = c_ulong;
 
-alias ValT = c_ulong;
-
 alias KeyT = c_ulong;
+
+alias ValT = c_ulong;
 
 // __cplusplus
 
 HandleT dashmap_new ();
 
 HandleT segqueue_new ();
+
+bool dashmap_contains_key (HandleT handle, KeyT key);
 
 ValT dashmap_get (HandleT handle, KeyT key);
 
