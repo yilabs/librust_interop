@@ -8,8 +8,16 @@ rust_interop.h:
 	# dub run 
 	dstep $@ -o $(RUST_INTEROP_D)
 
+
+RUSTC_VER := $(shell rustc --version)
+
+env:
+	echo "$(RUSTC_VER)"
+
 build:
+ifeq (,$(findstring nightly,$(RUSTC_VER)))
 	rustup toolchain install nightly  # needed for cargo-expand
+endif
 	rustup default nightly
 	cargo install cbindgen  # --force
 	cargo install cargo-expand
